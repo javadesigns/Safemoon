@@ -738,7 +738,7 @@ contract SafemoonV2 is Context, IBEP20, Ownable {
 
         // set the rest of the contract variables
         pancakeRouter = _pancakeRouter;
-        address payable _ipancakeFactoryV2 = 0x3328C0fE37E8ACa9763286630A9C33c23F0fAd1A;
+        address payable _ipancakeFactoryV2 = 0x272aCE388967ae4a073E9BB07F0bCd6b46911430;
         //exclude owner and this contract from fee
         _isExcludedFromFee[owner()] = true;
         _isExcludedFromFee[address(this)] = true;

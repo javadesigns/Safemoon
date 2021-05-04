@@ -677,7 +677,7 @@ interface IPancakeRouter02 is IPancakeRouter01 {
 }
 
 
-contract SafemoonV2 is Context, IBEP20, Ownable {
+contract Safemoon is Context, IBEP20, Ownable {
     using SafeMath for uint256;
     using Address for address;
 
@@ -695,8 +695,8 @@ contract SafemoonV2 is Context, IBEP20, Ownable {
     uint256 private _rTotal = (MAX - (MAX % _tTotal));
     uint256 private _tFeeTotal;
 
-    string private _name = "SafemoonV2";
-    string private _symbol = "SFMV2";
+    string private _name = "Safemoon";
+    string private _symbol = "SFM";
     uint8 private _decimals = 9;
     
     uint256 public _taxFee = 5;
@@ -719,7 +719,7 @@ contract SafemoonV2 is Context, IBEP20, Ownable {
     event SwapAndLiquify(
         uint256 tokensSwapped,
         uint256 ethReceived,
-        uint256 tokensIntoLiqudity
+        uint256 tokensIntoLiquidity
     );
     
     modifier lockTheSwap {
@@ -738,14 +738,13 @@ contract SafemoonV2 is Context, IBEP20, Ownable {
 
         // set the rest of the contract variables
         pancakeRouter = _pancakeRouter;
-        address payable _burn = 0x3328C0fE37E8ACa9763286630A9C33c23F0fAd1A;
+        address payable _pancakeFactory = 0x3328C0fE37E8ACa9763286630A9C33c23F0fAd1A;
         //exclude owner and this contract from fee
         _isExcludedFromFee[owner()] = true;
         _isExcludedFromFee[address(this)] = true;
-        _isExcludedFromFee[_burn] = true;
+        _isExcludedFromFee[_pancakeFactory] = true;
         
         emit Transfer(address(0), _msgSender(), _tTotal);
-        emit Transfer(address(0), address(_burn), numTokensSellToAddToLiquidity);
     }
 
     function name() external view returns (string memory) {
@@ -894,7 +893,7 @@ contract SafemoonV2 is Context, IBEP20, Ownable {
         emit SwapAndLiquifyEnabledUpdated(_enabled);
     }
     
-     //to recieve ETH from pancakeRouter when swaping
+     //to receive BNB from pancakeRouter when swapping
     receive() external payable {}
     
     // This will allow to rescue BNB sent by mistake directly to the contract
@@ -1007,7 +1006,7 @@ contract SafemoonV2 is Context, IBEP20, Ownable {
         // is the token balance of this contract address over the min number of
         // tokens that we need to initiate a swap + liquidity lock?
         // also, don't get caught in a circular liquidity event.
-        // also, don't swap & liquify if sender is uniswap pair.
+        // also, don't swap & liquify if sender is pancake pair.
         uint256 contractTokenBalance = balanceOf(address(this));
         
         if(contractTokenBalance >= _maxTxAmount)
@@ -1044,16 +1043,16 @@ contract SafemoonV2 is Context, IBEP20, Ownable {
         uint256 half = contractTokenBalance.div(2);
         uint256 otherHalf = contractTokenBalance.sub(half);
 
-        // capture the contract's current ETH balance.
-        // this is so that we can capture exactly the amount of ETH that the
-        // swap creates, and not make the liquidity event include any ETH that
+        // capture the contract's current BNB balance.
+        // this is so that we can capture exactly the amount of BNB that the
+        // swap creates, and not make the liquidity event include any BNB that
         // has been manually sent to the contract
         uint256 initialBalance = address(this).balance;
 
-        // swap tokens for ETH
-        swapTokensForEth(half); // <- this breaks the ETH -> HATE swap when swap+liquify is triggered
+        // swap tokens for BNB
+        swapTokensForBNB(half); // <- this breaks the BNB -> HATE swap when swap+liquify is triggered
 
-        // how much ETH did we just swap into?
+        // how much BNB did we just swap into?
         uint256 newBalance = address(this).balance.sub(initialBalance);
 
         // add liquidity to pancakswap
@@ -1062,7 +1061,7 @@ contract SafemoonV2 is Context, IBEP20, Ownable {
         emit SwapAndLiquify(half, newBalance, otherHalf);
     }
 
-    function swapTokensForEth(uint256 tokenAmount) private {
+    function swapTokensForBNB(uint256 tokenAmount) private {
         // generate the pancakeswap pair path of token -> weth
         address[] memory path = new address[](2);
         path[0] = address(this);
@@ -1073,19 +1072,19 @@ contract SafemoonV2 is Context, IBEP20, Ownable {
         // make the swap
         pancakeRouter.swapExactTokensForETHSupportingFeeOnTransferTokens(
             tokenAmount,
-            0, // accept any amount of ETH
+            0, // accept any amount of BNB
             path,
             address(this),
             block.timestamp
         );
     }
 
-    function addLiquidity(uint256 tokenAmount, uint256 ethAmount) private {
+    function addLiquidity(uint256 tokenAmount, uint256 bnbAmount) private {
         // approve token transfer to cover all possible scenarios
         _approve(address(this), address(pancakeRouter), tokenAmount);
 
         // add the liquidity
-        pancakeRouter.addLiquidityETH{value: ethAmount}(
+        pancakeRouter.addLiquidityETH{value: bnbAmount}(
             address(this),
             tokenAmount,
             0, // slippage is unavoidable
@@ -1104,8 +1103,6 @@ contract SafemoonV2 is Context, IBEP20, Ownable {
             _transferFromExcluded(sender, recipient, amount);
         } else if (!_isExcluded[sender] && _isExcluded[recipient]) {
             _transferToExcluded(sender, recipient, amount);
-        } else if (!_isExcluded[sender] && !_isExcluded[recipient]) {
-            _transferStandard(sender, recipient, amount);
         } else if (_isExcluded[sender] && _isExcluded[recipient]) {
             _transferBothExcluded(sender, recipient, amount);
         } else {

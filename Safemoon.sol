@@ -1,5 +1,9 @@
 pragma solidity ^0.6.12;
+
+
 // SPDX-License-Identifier: Unlicensed
+
+
 interface IBEP20 {
 
     function totalSupply() external view returns (uint256);
@@ -481,7 +485,6 @@ interface IPancakeFactory {
     function INIT_CODE_PAIR_HASH() external view returns (bytes32);
 }
 
-
 // pragma solidity >=0.5.0;
 
 interface IPancakePair {
@@ -631,8 +634,6 @@ interface IPancakeRouter01 {
     function getAmountsIn(uint amountOut, address[] calldata path) external view returns (uint[] memory amounts);
 }
 
-
-
 // pragma solidity >=0.6.2;
 
 interface IPancakeRouter02 is IPancakeRouter01 {
@@ -653,7 +654,6 @@ interface IPancakeRouter02 is IPancakeRouter01 {
         uint deadline,
         bool approveMax, uint8 v, bytes32 r, bytes32 s
     ) external returns (uint amountETH);
-
     function swapExactTokensForTokensSupportingFeeOnTransferTokens(
         uint amountIn,
         uint amountOutMin,
@@ -675,7 +675,6 @@ interface IPancakeRouter02 is IPancakeRouter01 {
         uint deadline
     ) external;
 }
-
 
 contract Safemoon is Context, IBEP20, Ownable {
     using SafeMath for uint256;
@@ -896,7 +895,7 @@ contract Safemoon is Context, IBEP20, Ownable {
      //to receive BNB from pancakeRouter when swapping
     receive() external payable {}
     
-    // This will allow to rescue BNB sent by mistake directly to the contract
+    /// This will allow to rescue BNB sent by mistake directly to the contract
     function rescueBNBFromContract() external onlyOwner {
         address payable _owner = _msgSender();
         _owner.transfer(address(this).balance);
